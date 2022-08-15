@@ -6,50 +6,90 @@ from lib.sqlite import SQLite
 from lib.model_widget import ModelWidget
 
 # @todo possibly define these as env vars
-DB_NAME = 'tornado_rest_test.db'
-TABLE_NAME = 'widgets'
+DB_NAME = "tornado_rest_test.db"
+TABLE_NAME = "widgets"
 
-def db_init():
-    """ Check if table for the application exists, create it if it does not """
-    db = SQLite(DB_NAME)
-    model_widget = ModelWidget(db)
+class Application(tornado.web.Application):
+    """ Define routes for the application and extend so db is a member for all handlers"""
 
-    if not db.tables_exist([TABLE_NAME]):
-        model_widget.create_table()
-        model_widget.describe()
+    def __init__(self, db):
+        """ Constructor for application """
+        self.db = db
+        self.model_widget = ModelWidget(db)
+
+        self.db_init()
+
+        routes = [
+            # Static routes
+            (r'/css/(.*)', tornado.web.StaticFileHandler, {'path': './css'}),
+            (r'/js/(.*)', tornado.web.StaticFileHandler, {'path': './js'}),
+            (r'/img/(.*)', tornado.web.StaticFileHandler, {'path': './img'}),
+            (r'/favicon.ico', tornado.web.StaticFileHandler, {'path': './img/favicon.ico'}),
+
+            # Dynamic routes
+            (r"/", IndexHandler),
+            (r"/api/?(.*)", ApiHandler),
+        ]
+
+        super().__init__(routes)
+
+    def db_init(self):
+        """ Check if table for the application exists, create it if it does not """
+        if not self.db.tables_exist([TABLE_NAME]):
+            self.model_widget.create_table()
+            self.model_widget.describe()
+
+            # @todo remove or move into test harness
+            rowid = self.model_widget.insert("test widget 1", 5)
+            rowid = self.model_widget.insert("test widget 2", 10)
+            rowid = self.model_widget.insert("test widget 3", 15)
 
 class IndexHandler(tornado.web.RequestHandler):
     """ Output index page which will have some basic instructions as well as display the widgets
         in the db
     """
     def get(self):
-        self.render("templates/index.html", title="Tornado Rest Test", body_content="Welcome to the show!")
+        widget_results = self.application.model_widget.select_all()
+        self.render("templates/index.html", title="Tornado Rest Test", body_content="Welcome to the show!", widget_results=widget_results)
 
 class ApiHandler(tornado.web.RequestHandler):
     """ Handle requests to /api """
-    def post(self):
-        response = {"language": self.request.headers.get("Accept-Language", "")}
+    def get(self, path):
+        if path == "create":
+            response = self.create()
+        elif path == "read":
+            response = self.read()
+        elif path == "update":
+            response = self.update()
+        elif path == "delete":
+            response = self.delete()
+        else:
+            raise tornado.web.HTTPError(404)
+
         self.set_header("Content-Type", "application/json")
+
+        # @todo remove or add some type of debug mode - output incoming request headers while testing
+        for k, v in self.request.headers.get_all():
+            response[k] = v
+
         self.write(json.dumps(response))
 
-def make_app():
-    """ Define routes for the application """
-    return tornado.web.Application([
-        # Static routes
-        (r'/css/(.*)', tornado.web.StaticFileHandler, {'path': './css'}),
-        (r'/js/(.*)', tornado.web.StaticFileHandler, {'path': './js'}),
-        (r'/img/(.*)', tornado.web.StaticFileHandler, {'path': './img'}),
-        (r'/favicon.ico', tornado.web.StaticFileHandler, {'path': './img/favicon.ico'}),
+    def create(self):
+        return {"response": "create"}
 
-        # Dynamic routes
-        (r"/", IndexHandler),
-        (r"/api", ApiHandler),
-    ])
+    def read(self):
+        return {"response": "read"}
+
+    def update(self):
+        return {"response": "update"}
+
+    def delete(self):
+        return {"response": "delete"}
 
 def main():
-    db_init()
+    db = SQLite(DB_NAME)
 
-    app = make_app()
+    app = Application(db)
     app.listen(8000)
 
     tornado.ioloop.IOLoop.current().start()

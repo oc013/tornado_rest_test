@@ -31,6 +31,6 @@ Todo
 * * Determine if we want to have multiple routes under /api within the same class
 * Validate name field is limited to 64 characters
 * Write unit tests
-* Verify we
+* Add async/await possibly?
 * Dockerfile?
 * PEP8 compliance

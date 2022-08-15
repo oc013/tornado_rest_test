@@ -20,5 +20,11 @@
     </head>
     <body>
         {{ body_content }}
+
+        <ul>
+        {% for widget in widget_results %}
+            <li>{{ widget }}</li>
+        {% end %}
+        </ul>
     </body>
 </html>
