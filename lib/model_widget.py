@@ -1,16 +1,19 @@
+from typing import TypeVar, Type
+
+# @todo revisit this to ensure it is the proper way to type hint
+SQLite = TypeVar('lib.sqlite.SQLite')
+
 class ModelWidget():
     """ Defines CRUD operations for Widgets Model """
 
-    # @todo type annotation for db?
-    # db:SQLite
-    def __init__(self, db):
+    def __init__(self, db: SQLite) -> None:
         """ Constructor with dependency injection """
         self.db = db
 
         # @todo tbd if we're doing this
         fields=()
 
-    def create_table(self):
+    def create_table(self) -> None:
         """ Create the table schema and triggers """
         self.db.execute('''
             pragma encoding = 'UTF-8';
@@ -33,28 +36,28 @@ class ModelWidget():
             END;
         ''', ())
 
-    def describe(self):
+    def describe(self) -> None:
         result = self.db.select("SELECT * FROM sqlite_master", ())
         print(result)
 
-    def insert(self, name:str, parts:int):
+    def insert(self, name: str, parts: int) -> int:
         """ Insert a record """
         rowid = self.db.insert('INSERT INTO widgets (name, parts) VALUES (?, ?)', (name, parts))
         return rowid
 
-    def select_all(self):
+    def select_all(self) -> list:
         """ Select all records in table """
         return self.db.select('SELECT * FROM widgets', ())
 
-    def select_one(self, id:int):
+    def select_one(self, id: int) -> list:
         """ Select one record by id """
         return self.db.select('SELECT * FROM widgets WHERE id = ?', (id,))
 
     # @todo handle if only name or parts number is updated
-    def update(self, id:int, name:str, parts:int):
+    def update(self, id: int, name: str, parts: int) -> int:
         """ Update a record by id """
         return self.db.execute('UPDATE widgets SET name = ?, parts = ? WHERE id = ?', (name, parts, id))
 
-    def delete(self, id:int):
+    def delete(self, id: int) -> int:
         """ Delete a record by id """
         return self.db.execute('DELETE from widgets WHERE id = ?', (id,))

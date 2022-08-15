@@ -14,15 +14,14 @@ Python 3.8.13
 
 Install
 ------
-git clone --- https://github.com/oc013/tornado_rest_test.git
-pip install -r requirements.txt
-python main.py
+* git clone https://github.com/oc013/tornado_rest_test.git
+* cd tornado_rest_test
+* pip install -r requirements.txt
+* python main.py
 
 Attributions
 ------
-
-Favicon by Lorc https://game-icons.net/1x1/lorc/tornado.html under CC BY 3.0 https://creativecommons.org/licenses/by/3.0/
-
+Favicon by [Lorc](https://game-icons.net/1x1/lorc/tornado.html) under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
 
 Todo
 ------
@@ -30,6 +29,8 @@ Todo
 * Create form and related js to make it a self-contained system
 * Add/expose all the endpoints for the api
 * * Determine if we want to have multiple routes under /api within the same class
-* Write tests
+* Validate name field is limited to 64 characters
+* Write unit tests
 * Verify we
 * Dockerfile?
+* PEP8 compliance
