@@ -94,7 +94,7 @@ let inspectListeners = async () => {
             .then((data) => {
                 let outputInspect = '';
                 for (let element in data) {
-                    outputInspect += element + ': ' + data[element] + '<br>';
+                    outputInspect += element + ': ' + escapeHTML(data[element]) + '<br>';
                 }
 
                 showTooltip(outputInspect, (e.clientX - 333), e.clientY);
