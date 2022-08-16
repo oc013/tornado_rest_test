@@ -1,6 +1,6 @@
 Intro
 -----
-This is a evaluation of the Tornado framework/web server.
+This is an evaluation of the Tornado framework/web server.
 
 We'll create a simple application for creating and counting any number of widgets.
 
