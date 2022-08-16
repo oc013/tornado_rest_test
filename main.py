@@ -49,12 +49,18 @@ class IndexHandler(tornado.web.RequestHandler):
         in the db
     """
     def get(self):
-        widget_results = self.application.model_widget.select_all()
-        self.render("templates/index.html", title="Tornado Rest Test", body_content="Welcome to the show!", widget_results=widget_results)
+        self.render("templates/index.html", title="Tornado Rest Test", body_content="<h1>Widget Manager</h1>")
 
 class ApiHandler(tornado.web.RequestHandler):
     """ Handle requests to /api """
+    def post(self, path):
+        self.route(path)
+
     def get(self, path):
+        self.route(path)
+
+    def route(self, path):
+        """ Temporary to allow both gets and posts while testing """
         if path == "create":
             response = self.create()
         elif path == "read":
@@ -69,16 +75,27 @@ class ApiHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
 
         # @todo remove or add some type of debug mode - output incoming request headers while testing
-        for k, v in self.request.headers.get_all():
-            response[k] = v
+        # for k, v in self.request.headers.get_all():
+        #     response[k] = v
 
         self.write(json.dumps(response))
 
     def create(self):
+        # print(self.request.body)
+        if self.request.headers['Content-Type'] == 'application/json':
+            args = json.loads(self.request.body)
+            print(args)
+
+            row_id = self.application.model_widget.insert(args['widget_name'], args['widget_parts'])
+        else:
+            raise tornado.web.HTTPError(400)
+
         return {"response": "create"}
 
     def read(self):
-        return {"response": "read"}
+        """ Default behavior returns all records """
+        widget_results = self.application.model_widget.select_all()
+        return widget_results
 
     def update(self):
         return {"response": "update"}

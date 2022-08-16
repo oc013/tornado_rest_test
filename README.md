@@ -14,10 +14,12 @@ Python 3.8.13
 
 Install
 ------
-* git clone https://github.com/oc013/tornado_rest_test.git
-* cd tornado_rest_test
-* pip install -r requirements.txt
-* python main.py
+```
+git clone https://github.com/oc013/tornado_rest_test.git
+cd tornado_rest_test
+pip install -r requirements.txt
+python main.py
+```
 
 Attributions
 ------
@@ -25,12 +27,14 @@ Favicon by [Lorc](https://game-icons.net/1x1/lorc/tornado.html) under [CC BY 3.0
 
 Todo
 ------
-* Devise a logical way to organize backend code e.g. controller vs model type classes
 * Create form and related js to make it a self-contained system
+* protect from SQL injection etc
 * Add/expose all the endpoints for the api
-* * Determine if we want to have multiple routes under /api within the same class
 * Validate name field is limited to 64 characters
 * Write unit tests
 * Add async/await possibly?
 * Dockerfile?
 * PEP8 compliance
+
+* ~~Devise a logical way to organize backend code e.g. controller vs model type classes~~
+* ~~ Determine if we want to have multiple routes under /api within the same class ~~
