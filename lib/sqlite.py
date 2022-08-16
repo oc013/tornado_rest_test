@@ -30,11 +30,11 @@ class SQLite:
 
     def tables_exist(self, tablenames: list) -> bool:
         """ Check if tables in the supplied list exist """
-        table_results = self.cursor.execute('''
-            SELECT name
-            FROM sqlite_master
-            WHERE name IN (%s)
-        ''' % ','.join('?'*len(tablenames)), tablenames).fetchall()
+        table_placeholders = ','.join('?'*len(tablenames))
+        table_results = self.cursor.execute(
+            f'SELECT name FROM sqlite_master WHERE name IN ({table_placeholders})',
+            tablenames
+        ).fetchall()
 
         return bool(len(table_results) == len(tablenames))
 
