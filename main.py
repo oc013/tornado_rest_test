@@ -77,11 +77,9 @@ class ApiHandler(tornado.web.RequestHandler):
         self.write(json.dumps(response))
 
     def create(self):
-        # print(self.request.body)
+        """ Insert a record """
         if self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
-            print(args)
-
             row_id = self.application.model_widget.insert(args['widget_name'], args['widget_parts'])
         else:
             raise tornado.web.HTTPError(400)
@@ -90,13 +88,30 @@ class ApiHandler(tornado.web.RequestHandler):
 
     def read(self):
         """ Default behavior returns all records """
-        widget_results = self.application.model_widget.select_all()
+        selectAll = True
+
+        if self.request.body and self.request.headers['Content-Type'] == 'application/json':
+            args = json.loads(self.request.body)
+            if args['id']:
+                selectAll = False
+
+        widget_results = self.application.model_widget.select_all() if selectAll else self.application.model_widget.select_one(args['id'])
+
         return widget_results
 
+    # @todo we're assuming we're getting both fields right now
     def update(self):
+        """ Update a record by ID """
+        if self.request.headers['Content-Type'] == 'application/json':
+            args = json.loads(self.request.body)
+            row_id = self.application.model_widget.update(args['widget_id'], args['widget_name'], args['widget_parts'])
+        else:
+            raise tornado.web.HTTPError(400)
+
         return {"response": "update"}
 
     def delete(self):
+        """ Delete a record by ID """
         if self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
             rows_affected = self.application.model_widget.delete(args['id'])

@@ -54,7 +54,9 @@ class ModelWidget():
 
     def select_one(self, id: int) -> list:
         """ Select one record by id """
-        return self.db.select("SELECT * FROM widgets WHERE id = ?", (id,))
+        results = self.db.select("SELECT * FROM widgets WHERE id = ?", (id,))
+        return_results = dict(zip(self.fields, results[0]))
+        return return_results
 
     # @todo handle if only name or parts number is updated
     def update(self, id: int, name: str, parts: int) -> int:

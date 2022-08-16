@@ -39,14 +39,17 @@
 
         <hr>
 
-        <form id="form_widget_add">
+        <form id="form_widget" autocomplete="off">
             <fieldset>
-                <legend>Add a new widget!</legend>
+                <legend>Add Widget</legend>
                 <label>Widget Name: <input name="widget_name" id="widget_name" length="64"></label>
                 <br>
                 <label>Quantity: <input name="widget_parts" id="widget_parts"></label>
                 <br>
                 <button type="submit">Add Widget</button>
+                <input type="reset">
+                <input type="hidden" name="mode" id="form_mode" value="create">
+                <input type="hidden" name="widget_id" id="widget_id" value="">
             </fieldset>
         </form>
 
@@ -57,8 +60,10 @@
                 <td class="parts"></td>
                 <td class="date_created"></td>
                 <td class="date_updated"></td>
-                <td class="row_actions"><span class="update">✎</span><span class="delete" title="delete">⌫</span></td>
+                <td class="row_actions"><span class="inspect">🔍</span><span class="update">✎</span><span class="delete" title="delete">⌫</span></td>
             </tr>
         </template>
+
+        <div id="inspect" style="display:none; visibility: hidden;"><span class="content"></span><span class="close" title="close">✖</span></div>
     </body>
 </html>

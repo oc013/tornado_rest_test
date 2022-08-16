@@ -2,3 +2,8 @@ body {
     background:#000;
     color:#FFF;
 }
+
+div#inspect.show {
+    display:inline-block!important;
+    visibility:visible!important;
+}
