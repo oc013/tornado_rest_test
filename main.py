@@ -74,10 +74,6 @@ class ApiHandler(tornado.web.RequestHandler):
 
         self.set_header("Content-Type", "application/json")
 
-        # @todo remove or add some type of debug mode - output incoming request headers while testing
-        # for k, v in self.request.headers.get_all():
-        #     response[k] = v
-
         self.write(json.dumps(response))
 
     def create(self):
@@ -90,7 +86,7 @@ class ApiHandler(tornado.web.RequestHandler):
         else:
             raise tornado.web.HTTPError(400)
 
-        return {"response": "create"}
+        return {"response": "create", "id": row_id}
 
     def read(self):
         """ Default behavior returns all records """
@@ -101,7 +97,13 @@ class ApiHandler(tornado.web.RequestHandler):
         return {"response": "update"}
 
     def delete(self):
-        return {"response": "delete"}
+        if self.request.headers['Content-Type'] == 'application/json':
+            args = json.loads(self.request.body)
+            rows_affected = self.application.model_widget.delete(args['id'])
+        else:
+            raise tornado.web.HTTPError(400)
+
+        return {"response": "delete", "rows": rows_affected}
 
 def main():
     db = SQLite(DB_NAME)

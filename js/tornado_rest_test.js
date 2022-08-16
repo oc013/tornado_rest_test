@@ -21,6 +21,32 @@ let formListener = async () => {
     });
 };
 
+let editListeners = async () => {
+
+};
+
+let deleteListeners = async () => {
+    const deleteButtons = document.querySelectorAll('span.delete');
+
+    for (let deleteButton of deleteButtons) {
+        deleteButton.addEventListener('click', async (e) => {
+            e.stopPropagation();
+
+            let id = e.target.closest('tr').dataset.id;
+
+            await fetch('/api/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id: id})
+            })
+            .then((response) => response.json())
+            .then((data) => populateTable(true));
+        });
+    }
+};
+
 /**
  * Populate the widgets table with data and optionally clear it out before hand
  * @param {Boolean} clear Set to `true` to clear table before populating
@@ -49,16 +75,22 @@ let populateTable = async (clear=false) => {
             let rowClone = rowTemplate.content.cloneNode(true);
             let newRow = rowClone.querySelector('tr');
 
+            newRow.dataset.id = row['id'];
+
             for (let key in row) {
                 rowClone.querySelector('td.' + key).innerHTML = row[key];
             }
 
             tbody.append(newRow);
         }
+
+        editListeners();
+        deleteListeners();
     });
 };
 
 window.onload = () => {
     formListener();
+
     populateTable();
 };
