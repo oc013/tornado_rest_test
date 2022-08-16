@@ -58,11 +58,11 @@ form div#form_widget_controls {
     float: right;
 }
 
-div#inspect {
+div#tooltip {
     display: none;
     visibility: hidden;
     width: 333px;
-    background: #333;
+    background-color: #333;
     border:1px solid #000;
     position: absolute;
     top: 200px;
@@ -71,12 +71,16 @@ div#inspect {
     z-index: 100;
 }
 
-div#inspect.show {
+div#tooltip.show {
     display: block!important;
     visibility: visible!important;
 }
 
-div#inspect span.close {
+div#tooltip.error {
+    background-color: #990000;
+}
+
+div#tooltip span.close {
     position: absolute;
     top: 0;
     right: 5px;

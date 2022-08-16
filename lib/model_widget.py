@@ -12,6 +12,29 @@ class ModelWidget():
 
         self.fields=("id", "name", "parts", "date_created", "date_updated")
 
+        self.validation = {
+            "id": ("int", ),
+            "name": ("length", 64),
+            "parts": ("int", )
+        }
+
+    def validate(self, values):
+        """ Perform basic validation """
+        valid = True
+        messages = []
+        for key, value in values.items():
+            if key in self.validation:
+                if self.validation[key][0] == "int" and not value.isdigit():
+                    valid = False
+                    messages.append(f"{key} is not an integer")
+                elif self.validation[key][0] == "length":
+                    maxlength = self.validation[key][1]
+                    if len(value) > maxlength:
+                        valid = False
+                        messages.append(f"{key} is longer than {maxlength}")
+
+        return {"success": valid, "messages": messages}
+
     def create_table(self) -> None:
         """ Create the table schema and triggers """
         self.db.execute('''

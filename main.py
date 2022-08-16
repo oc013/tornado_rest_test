@@ -80,9 +80,20 @@ class ApiHandler(tornado.web.RequestHandler):
         """ Insert a record """
         if self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
-            row_id = self.application.model_widget.insert(args['widget_name'], args['widget_parts'])
+
+            validate = self.application.model_widget.validate({
+                'name': args['widget_name'],
+                'parts': args['widget_parts']
+            })
+
+            if not validate["success"]:
+                self.set_status(400)
+                return {"error": validate["messages"]}
+
         else:
             raise tornado.web.HTTPError(400)
+
+        row_id = self.application.model_widget.insert(args['widget_name'], args['widget_parts'])
 
         return {"response": "create", "id": row_id}
 
@@ -92,7 +103,16 @@ class ApiHandler(tornado.web.RequestHandler):
 
         if self.request.body and self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
+
             if args['id']:
+                validate = self.application.model_widget.validate({
+                    'id': args['id']
+                })
+
+                if not validate["success"]:
+                    self.set_status(400)
+                    return {"error": validate["messages"]}
+
                 selectAll = False
 
         widget_results = self.application.model_widget.select_all() if selectAll else self.application.model_widget.select_one(args['id'])
@@ -104,9 +124,20 @@ class ApiHandler(tornado.web.RequestHandler):
         """ Update a record by ID """
         if self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
-            row_id = self.application.model_widget.update(args['widget_id'], args['widget_name'], args['widget_parts'])
+
+            validate = self.application.model_widget.validate({
+                'id': args['widget_id'],
+                'name': args['widget_name'],
+                'parts': args['widget_parts']
+            })
+
+            if not validate["success"]:
+                self.set_status(400)
+                return {"error": validate["messages"]}
         else:
             raise tornado.web.HTTPError(400)
+
+        row_id = self.application.model_widget.update(args['widget_id'], args['widget_name'], args['widget_parts'])
 
         return {"response": "update"}
 
@@ -114,9 +145,20 @@ class ApiHandler(tornado.web.RequestHandler):
         """ Delete a record by ID """
         if self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
-            rows_affected = self.application.model_widget.delete(args['id'])
+
+            validate = self.application.model_widget.validate({
+                'id': args['id']
+            })
+
+            if not validate["success"]:
+                self.set_status(400)
+                return {"error": validate["messages"]}
+
+
         else:
             raise tornado.web.HTTPError(400)
+
+        rows_affected = self.application.model_widget.delete(args['id'])
 
         return {"response": "delete", "rows": rows_affected}
 

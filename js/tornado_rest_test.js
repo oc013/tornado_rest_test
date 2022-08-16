@@ -29,8 +29,12 @@ let formListener = async () => {
         })
         .then((response) => response.json())
         .then((data) => {
-            e.target.reset();
-            populateTable(true);
+            if ('error' in data) {
+                showError(data['error'], e.target);
+            } else {
+                e.target.reset();
+                populateTable(true);
+            }
         });
     });
 
@@ -58,7 +62,6 @@ let inspectListeners = async () => {
             let parentRow = e.target.closest('tr');
             let id = parentRow.dataset.id;
 
-
             await fetch('/api/read', {
                 method: 'POST',
                 headers: {
@@ -68,18 +71,12 @@ let inspectListeners = async () => {
             })
             .then((response) => response.json())
             .then((data) => {
-                let inspectDiv = document.querySelector('div#inspect');
-                let inspectDivContent = inspectDiv.querySelector('span.content');
-
                 let outputInspect = '';
                 for (let element in data) {
                     outputInspect += element + ': ' + data[element] + '<br>';
                 }
-                inspectDivContent.innerHTML = outputInspect;
 
-                inspectDiv.classList.add('show');
-                inspectDiv.style.top = e.clientY + 'px';
-                inspectDiv.style.left = (e.clientX - 333) + 'px';
+                showTooltip(outputInspect, (e.clientX - 333), e.clientY);
             });
         });
     }
@@ -151,6 +148,7 @@ let populateTable = async (clear=false) => {
         for (let row of rows) {
             row.remove();
         }
+        closeTooltip();
     }
 
     await fetch('/api/read', {
@@ -180,21 +178,65 @@ let populateTable = async (clear=false) => {
 };
 
 /**
- * Handle close button for inspect div
+ * Display the tooltip with the content and coordinates provided
+ * @param {String} content
+ * @param {int} x
+ * @param {int} y
  */
-let inspectCloseListener = () => {
-    let inspectDiv = document.querySelector('div#inspect');
-    let inspectClose = inspectDiv.querySelector('div#inspect span.close');
-    let inspectDivContent = inspectDiv.querySelector('span.content');
+let showTooltip = (content, x, y, error=0) => {
+    let tooltipDiv = document.querySelector('div#tooltip');
+    let tooltipDivContent = tooltipDiv.querySelector('span.content');
 
-    inspectClose.addEventListener('click', (e) => {
-        inspectDiv.classList.remove('show');
-        inspectDivContent.innerHTML = '';
+    tooltipDivContent.innerHTML = content;
+    tooltipDiv.classList.add('show');
+    if (error) {
+        tooltipDiv.classList.add('error');
+    } else {
+        tooltipDiv.classList.remove('error');
+    }
+    tooltipDiv.style.left = x + 'px';
+    tooltipDiv.style.top = y + 'px';
+};
+
+/**
+ * Parses error messages from the API and displays them in the tooltip at the coordinates of the element
+ * @param {Array} errorArray
+ * @param {Object} element
+ */
+let showError = (errorArray, element) => {
+    let outputError = '';
+    for (let errorMessage of errorArray) {
+        outputError += errorMessage + '<br>';
+    }
+    var position = element.getBoundingClientRect();
+
+    showTooltip(outputError, position.right - 50, position.bottom - 50, 1);
+};
+
+/**
+ * Close the tooltip and remove content
+ */
+let closeTooltip = () => {
+    let tooltipDiv = document.querySelector('div#tooltip');
+    let tooltipDivContent = tooltipDiv.querySelector('span.content');
+
+    tooltipDiv.classList.remove('show', 'error');
+    tooltipDivContent.innerHTML = '';
+};
+
+/**
+ * Handle close button for tooltip div
+ */
+let tooltipCloseListener = () => {
+    let tooltipClose = document.querySelector('div#tooltip span.close');
+
+    tooltipClose.addEventListener('click', (e) => {
+        closeTooltip();
     });
 };
 
 window.onload = () => {
     formListener();
     populateTable();
-    inspectCloseListener();
+    tooltipCloseListener();
 };
