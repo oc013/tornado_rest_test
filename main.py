@@ -1,6 +1,8 @@
+""" A simple API and client built and served with Tornado framework """
+
+import json
 import tornado.ioloop
 import tornado.web
-import json
 
 from lib.sqlite import SQLite
 from lib.model_widget import ModelWidget
@@ -14,8 +16,8 @@ class Application(tornado.web.Application):
 
     def __init__(self, db):
         """ Constructor for application """
-        self.db = db
-        self.model_widget = ModelWidget(db)
+        self.db_conn = db
+        self.model_widget = ModelWidget(self.db_conn)
 
         self.db_init()
 
@@ -35,28 +37,35 @@ class Application(tornado.web.Application):
 
     def db_init(self):
         """ Check if table for the application exists, create it if it does not """
-        if not self.db.tables_exist([TABLE_NAME]):
+        if not self.db_conn.tables_exist([TABLE_NAME]):
             self.model_widget.create_table()
             self.model_widget.describe()
 
             # @todo remove or move into test harness
-            rowid = self.model_widget.insert("test widget 1", 5)
-            rowid = self.model_widget.insert("test widget 2", 10)
-            rowid = self.model_widget.insert("test widget 3", 15)
+            self.model_widget.insert("test widget 1", 5)
+            self.model_widget.insert("test widget 2", 10)
+            self.model_widget.insert("test widget 3", 15)
 
 class IndexHandler(tornado.web.RequestHandler):
     """ Output index page which will have some basic instructions as well as display the widgets
         in the db
     """
     def get(self):
-        self.render("templates/index.html", title="Tornado Rest Test", body_content="<h1>Widget Manager</h1>")
+        """ Handle get request to index page """
+        self.render(
+            "templates/index.html",
+            title="Tornado Rest Test",
+            body_content="<h1>Widget Manager</h1>"
+        )
 
 class ApiHandler(tornado.web.RequestHandler):
     """ Handle requests to /api """
     def post(self, path):
+        """ Route to handle post requests to the api """
         self.route(path)
 
     def get(self, path):
+        """ Route to handle get requests to the api """
         self.route(path)
 
     def route(self, path):
@@ -99,7 +108,7 @@ class ApiHandler(tornado.web.RequestHandler):
 
     def read(self):
         """ Default behavior returns all records """
-        selectAll = True
+        select_all = True
 
         if self.request.body and self.request.headers['Content-Type'] == 'application/json':
             args = json.loads(self.request.body)
@@ -113,9 +122,12 @@ class ApiHandler(tornado.web.RequestHandler):
                     self.set_status(400)
                     return {"error": validate["messages"]}
 
-                selectAll = False
+                select_all = False
 
-        widget_results = self.application.model_widget.select_all() if selectAll else self.application.model_widget.select_one(args['id'])
+        if select_all:
+            widget_results = self.application.model_widget.select_all()
+        else:
+            widget_results = self.application.model_widget.select_one(args['id'])
 
         return widget_results
 
@@ -137,9 +149,13 @@ class ApiHandler(tornado.web.RequestHandler):
         else:
             raise tornado.web.HTTPError(400)
 
-        row_id = self.application.model_widget.update(args['widget_id'], args['widget_name'], args['widget_parts'])
+        rows_affected = self.application.model_widget.update(
+            args['widget_id'],
+            args['widget_name'],
+            args['widget_parts']
+        )
 
-        return {"response": "update"}
+        return {"response": "update", "rows": rows_affected}
 
     def delete(self):
         """ Delete a record by ID """
@@ -161,9 +177,10 @@ class ApiHandler(tornado.web.RequestHandler):
         return {"response": "delete", "rows": rows_affected}
 
 def main():
-    db = SQLite(DB_NAME)
+    """ Function to wrap starting up the application """
+    db_conn = SQLite(DB_NAME)
 
-    app = Application(db)
+    app = Application(db_conn)
     app.listen(8000)
 
     tornado.ioloop.IOLoop.current().start()

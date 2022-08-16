@@ -1,2 +1,3 @@
 __pycache__
+.vscode
 tornado_rest_test.db
