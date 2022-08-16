@@ -12,3 +12,4 @@ jobs:
       uses: sunnysid3up/python-linter@master
       with:
         strict: "high"
+        mypy-options: "--ignore-missing-imports --show-error-codes"
