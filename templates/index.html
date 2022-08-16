@@ -21,49 +21,54 @@
     <body>
         {% raw body_content %}
 
-        <hr>
-
         <table id="widget_table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Widget Name</th>
-                    <th>Quantity</th>
-                    <th>Date Added</th>
-                    <th>Date Updated</th>
-                    <th>Actions</th>
+                    <th class="right">ID</th>
+                    <th class="left">Widget Name</th>
+                    <th class="right">Quantity</th>
+                    <th class="right">Date Added</th>
+                    <th class="right">Date Updated</th>
+                    <th class="center">Actions</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
 
-        <hr>
-
         <form id="form_widget" autocomplete="off">
             <fieldset>
                 <legend>Add Widget</legend>
-                <label>Widget Name: <input name="widget_name" id="widget_name" length="64"></label>
-                <br>
-                <label>Quantity: <input name="widget_parts" id="widget_parts"></label>
-                <br>
-                <button type="submit">Add Widget</button>
-                <input type="reset">
+                <label><span>Widget Name:</span> <input name="widget_name" id="widget_name"></label>
+                <label><span>Quantity:</span> <input name="widget_parts" id="widget_parts"></label>
+
                 <input type="hidden" name="mode" id="form_mode" value="create">
                 <input type="hidden" name="widget_id" id="widget_id" value="">
+
+                <div id="form_widget_controls">
+                    <button type="submit">Add Widget</button>
+                    <input type="reset">
+                </div>
             </fieldset>
         </form>
 
         <template id="sample_row">
             <tr>
-                <td class="id"></td>
-                <td class="name"></td>
-                <td class="parts"></td>
-                <td class="date_created"></td>
-                <td class="date_updated"></td>
-                <td class="row_actions"><span class="inspect">🔍</span><span class="update">✎</span><span class="delete" title="delete">⌫</span></td>
+                <td class="id right"></td>
+                <td class="name left"></td>
+                <td class="parts right"></td>
+                <td class="date_created right"></td>
+                <td class="date_updated right"></td>
+                <td class="row_actions center">
+                    <span class="inspect action" title="Inspect record">🔍</span>
+                    <span class="update action" title="Update record">✎</span>
+                    <span class="delete action" title="Delete record">⊘</span>
+                </td>
             </tr>
         </template>
 
-        <div id="inspect" style="display:none; visibility: hidden;"><span class="content"></span><span class="close" title="close">✖</span></div>
+        <div id="inspect" style="display:none; visibility: hidden;">
+            <span class="content"></span>
+            <span class="close action" title="close">✖</span>
+        </div>
     </body>
 </html>

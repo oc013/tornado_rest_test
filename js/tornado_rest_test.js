@@ -58,6 +58,7 @@ let inspectListeners = async () => {
             let parentRow = e.target.closest('tr');
             let id = parentRow.dataset.id;
 
+
             await fetch('/api/read', {
                 method: 'POST',
                 headers: {
@@ -69,13 +70,16 @@ let inspectListeners = async () => {
             .then((data) => {
                 let inspectDiv = document.querySelector('div#inspect');
                 let inspectDivContent = inspectDiv.querySelector('span.content');
-                inspectDiv.classList.add('show');
 
                 let outputInspect = '';
                 for (let element in data) {
                     outputInspect += element + ': ' + data[element] + '<br>';
                 }
                 inspectDivContent.innerHTML = outputInspect;
+
+                inspectDiv.classList.add('show');
+                inspectDiv.style.top = e.clientY + 'px';
+                inspectDiv.style.left = (e.clientX - 333) + 'px';
             });
         });
     }
