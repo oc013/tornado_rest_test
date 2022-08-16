@@ -1,4 +1,25 @@
 /**
+ * Quick HTML escape to avoid XSS
+ * @todo review for improvement
+ * @link https://stackoverflow.com/a/6234804
+ * @param {mixed} value
+ * @returns mixed
+ */
+let escapeHTML = (value) => {
+    if (typeof value == "string") {
+        value = value.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag]))
+    }
+
+    return value;
+};
+
+/**
  * Add eventlistener that overrides default form submission to submit via AJAX
  * The same form also allows record create and update and is handled thusly here.
  */
@@ -165,7 +186,7 @@ let populateTable = async (clear=false) => {
 
             for (let key in row) {
                 newRow.dataset[key] = row[key];
-                rowClone.querySelector('td.' + key).innerHTML = row[key];
+                rowClone.querySelector('td.' + key).innerHTML = escapeHTML(row[key]);
             }
 
             tbody.append(newRow);

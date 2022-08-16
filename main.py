@@ -153,8 +153,6 @@ class ApiHandler(tornado.web.RequestHandler):
             if not validate["success"]:
                 self.set_status(400)
                 return {"error": validate["messages"]}
-
-
         else:
             raise tornado.web.HTTPError(400)
 
